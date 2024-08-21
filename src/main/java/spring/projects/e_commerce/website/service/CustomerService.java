@@ -1,9 +1,11 @@
 package spring.projects.e_commerce.website.service;
 
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import spring.projects.e_commerce.website.dto.CustomerDto;
 import spring.projects.e_commerce.website.dto.LoginDto;
 import spring.projects.e_commerce.website.dto.RegistrationDto;
 import spring.projects.e_commerce.website.entity.Customer;
@@ -19,6 +21,7 @@ import java.util.Optional;
 public class CustomerService {
     private final CustomerRepository customerRepository;
     private final JWTService jwtService;
+    private final ModelMapper modelMapper;
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public void registerUser(@RequestBody RegistrationDto customerDto) {
@@ -48,5 +51,9 @@ public class CustomerService {
             }
         }
         throw new WrongLoginDetails();
+    }
+
+    public CustomerDto entityToDto(Customer customer) {
+        return modelMapper.map(customer, CustomerDto.class);
     }
 }

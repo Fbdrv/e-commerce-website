@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CustomerDto {
+public class RegistrationDto {
 
     @NotBlank(message = "field.must.be.not.blank")
     private String username;

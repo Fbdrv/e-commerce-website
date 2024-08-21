@@ -51,5 +51,4 @@ public class Customer {
     @OneToOne(mappedBy = "customer", cascade = CascadeType.REMOVE,
         optional = false, orphanRemoval = true)
     private BillingAddress billingAddress;
-
 }
