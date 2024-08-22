@@ -70,7 +70,7 @@ public class AuthController {
     }
 
     @PutMapping(path = "{customerId}")
-    public ResponseEntity updateCustomer(@PathVariable("customerId") Long customerId,
+    public ResponseEntity<String> updateCustomer(@PathVariable("customerId") Long customerId,
                                       @RequestBody CustomerDto customerDto) {
         customerService.updateCustomer(customerId, customerDto);
         return ResponseEntity.ok().body("Customer information updated successfully");
