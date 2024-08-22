@@ -3,8 +3,8 @@ package spring.projects.e_commerce.website.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import jakarta.annotation.PostConstruct;
-import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import spring.projects.e_commerce.website.entity.Customer;
 
 import java.util.Date;
@@ -33,7 +33,7 @@ public class JWTService {
                 .sign(algorithm);
     }
 
-    public String getUsername(String token) {
+    public String extractUsername(String token) {
         return JWT.decode(token)
                 .getClaim("USERNAME").asString();
     }

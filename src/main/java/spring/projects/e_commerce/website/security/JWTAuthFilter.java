@@ -31,10 +31,9 @@ public class JWTAuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String tokenHeader = request.getHeader("Authorization");
-
         if (tokenHeader != null && tokenHeader.startsWith("Bearer ")) {
             String token = tokenHeader.substring(7);
-            String username = jwtService.getUsername(token);
+            String username = jwtService.extractUsername(token);
 
             Optional<Customer> user = customerRepository.findByUsernameIgnoreCase(username);
             if (user.isPresent()) {

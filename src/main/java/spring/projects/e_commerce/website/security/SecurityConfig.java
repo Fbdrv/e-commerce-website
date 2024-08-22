@@ -16,17 +16,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-         http
-             .authorizeHttpRequests(
-             auth -> auth.anyRequest().permitAll()
+        http
+             .authorizeHttpRequests(authorize -> authorize
+             .anyRequest().permitAll()
         ).csrf(AbstractHttpConfigurer::disable);
-         return http.build();
+        return http.build();
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public ModelMapper modelMapper() {
         return new ModelMapper();
