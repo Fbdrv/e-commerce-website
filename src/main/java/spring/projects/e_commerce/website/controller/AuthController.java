@@ -7,18 +7,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spring.projects.e_commerce.website.dto.CustomerDto;
+import spring.projects.e_commerce.website.dto.CustomerUpdatingDto;
 import spring.projects.e_commerce.website.dto.LoginDto;
 import spring.projects.e_commerce.website.dto.RegistrationDto;
 import spring.projects.e_commerce.website.service.CustomerService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -58,21 +56,18 @@ public class AuthController {
         return ResponseEntity.ok().body(information);
     }
 
-    @GetMapping("admin/allCustomers")
-    public List<CustomerDto> getAllCustomers () {
-        return customerService.getAllCustomers();
+    @Transactional
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteCustomer(@AuthenticationPrincipal CustomerDto customerDto) {
+        customerService.deleteCustomer(customerDto.getId());
+        return ResponseEntity.ok().body("Customer deleted successfully");
     }
 
     @Transactional
-    @DeleteMapping(path = "{customerId}")
-    public void deleteCustomer(@PathVariable("customerId") Long customerId) {
-        customerService.deleteCustomer(customerId);
-    }
-
-    @PutMapping(path = "{customerId}")
-    public ResponseEntity<String> updateCustomer(@PathVariable("customerId") Long customerId,
-                                      @RequestBody CustomerDto customerDto) {
-        customerService.updateCustomer(customerId, customerDto);
+    @PutMapping("/edit")
+    public ResponseEntity<String> updateCustomer(@AuthenticationPrincipal CustomerDto customerDto,
+                                      @RequestBody CustomerUpdatingDto customerUpdatingDto) {
+        customerService.updateCustomer(customerDto.getId(), customerUpdatingDto);
         return ResponseEntity.ok().body("Customer information updated successfully");
     }
 }
