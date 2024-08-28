@@ -1,7 +1,9 @@
 package spring.projects.e_commerce.website.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import spring.projects.e_commerce.website.dto.CustomerDto;
@@ -9,6 +11,7 @@ import spring.projects.e_commerce.website.dto.CustomerUpdatingDto;
 import spring.projects.e_commerce.website.dto.LoginDto;
 import spring.projects.e_commerce.website.dto.RegistrationDto;
 import spring.projects.e_commerce.website.entity.Customer;
+import spring.projects.e_commerce.website.enums.RoleEnum;
 import spring.projects.e_commerce.website.exception.EmailIsTaken;
 import spring.projects.e_commerce.website.exception.UsernameIsTaken;
 import spring.projects.e_commerce.website.exception.WrongLoginDetails;
@@ -22,11 +25,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CustomerService {
     private final CustomerRepository customerRepository;
-    private final JWTService jwtService;
     private final ModelMapper modelMapper;
+    private final JWTService jwtService;
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
     public void registerUser(RegistrationDto registrationDto) {
+
         if (customerRepository.findByEmailIgnoreCase(registrationDto.getEmail()).isPresent()) {
         throw new EmailIsTaken();
         } else if (customerRepository.findByUsernameIgnoreCase(registrationDto.getUsername()).isPresent()) {
@@ -38,6 +42,7 @@ public class CustomerService {
             customer.setPassword(encoder.encode(registrationDto.getPassword()));
             customer.setFirstName(registrationDto.getFirstName());
             customer.setLastName(registrationDto.getLastName());
+            customer.setRole(RoleEnum.USER);
 
             customerRepository.save(customer);
         }
@@ -55,27 +60,29 @@ public class CustomerService {
         throw new WrongLoginDetails();
     }
 
+
+
     public List<CustomerDto> getAllCustomers() {
-    List<Customer> customers = customerRepository.findAll();
+    List<Customer> userEntities = customerRepository.findAllCustomersByRole(RoleEnum.USER);
     List<CustomerDto> customerDtoList = new ArrayList<>();
-        for (Customer customer : customers) {
+        for (Customer customer : userEntities) {
             customerDtoList.add(entityToDto(customer));
         }
     return customerDtoList;
     }
-    public void deleteCustomer(Long id) {
+
+    @Transactional
+    public ResponseEntity<String> deleteCustomer(Long id) {
         if (customerRepository.findById(id).isPresent()) {
             customerRepository.deleteCustomerById(id);
+            return ResponseEntity.ok("User with id: " + id +" deleted successfully");
         } else {
             throw new RuntimeException("User with id: " + id + " not found");
         }
     }
 
-    public CustomerDto entityToDto(Customer customer) {
-        return modelMapper.map(customer, CustomerDto.class);
-    }
-
-    public void updateCustomer(Long customerId, CustomerUpdatingDto customerUpdatingDto) {
+    @Transactional
+    public ResponseEntity<String> updateCustomer(Long customerId, CustomerUpdatingDto customerUpdatingDto) {
         Optional<Customer> customerOptional = customerRepository.findById(customerId);
 
         if (customerOptional.isPresent()) {
@@ -106,8 +113,33 @@ public class CustomerService {
             }
 
             customerRepository.save(customer);
+            return ResponseEntity.ok("User with id: " + customerId + " updated successfully");
         } else {
-            throw new RuntimeException("Customer not found");
+            return ResponseEntity.badRequest().body("User with id: " + customerId + " not found");
         }
+    }
+
+    @Transactional
+    public ResponseEntity<String> deleteAllCustomers() {
+        if (!customerRepository.findAll().isEmpty()) {
+            for (Customer customer : customerRepository.findAllCustomersByRole(RoleEnum.USER)) {
+                customerRepository.deleteCustomerById(customer.getId());
+            }
+            return ResponseEntity.ok("All customers deleted successfully");
+        } else {
+            return ResponseEntity.ok("There are no customers to delete");
+        }
+    }
+
+    public CustomerDto getCurrentCustomer(String username){
+        Optional<Customer> customer = customerRepository.findByUsernameIgnoreCase(username);
+        if (customer.isPresent()) {
+            return entityToDto(customer.get());
+        } else {
+            throw new RuntimeException("Customer with this username not found");
+        }
+    }
+    public CustomerDto entityToDto(Customer customer) {
+        return modelMapper.map(customer, CustomerDto.class);
     }
 }

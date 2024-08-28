@@ -11,6 +11,7 @@ import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import spring.projects.e_commerce.website.enums.RoleEnum;
 
 import java.util.List;
 
@@ -40,15 +41,19 @@ public class Customer {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @Column(name = "role", nullable = false)
+    private RoleEnum role;
+
     @OneToMany(mappedBy = "customer", cascade = CascadeType.REMOVE,
             orphanRemoval = true)
     private List<ShippingAddress> shippingAddresses;
 
     @OneToOne(mappedBy = "customer", cascade = CascadeType.REMOVE,
-        optional = false, orphanRemoval = true)
+            optional = false, orphanRemoval = true)
     private Cart cart;
 
     @OneToOne(mappedBy = "customer", cascade = CascadeType.REMOVE,
-        optional = false, orphanRemoval = true)
+            optional = false, orphanRemoval = true)
     private BillingAddress billingAddress;
+
 }

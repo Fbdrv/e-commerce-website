@@ -4,11 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Data
 public class RegistrationDto {
 
@@ -30,5 +32,4 @@ public class RegistrationDto {
 
     @NotBlank(message = "field.must.be.not.blank")
     private String lastName;
-
 }
