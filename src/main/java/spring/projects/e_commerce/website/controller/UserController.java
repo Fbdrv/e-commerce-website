@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 import spring.projects.e_commerce.website.dto.CustomerDto;
 import spring.projects.e_commerce.website.dto.CustomerUpdatingDto;
 import spring.projects.e_commerce.website.service.CustomerService;
+import spring.projects.e_commerce.website.service.ProductService;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
     private final CustomerService customerService;
+    private final ProductService productService;
 
     @GetMapping("/profile")
     public CustomerDto getCurrentUser(@AuthenticationPrincipal CustomerDto customerDto) {
@@ -28,9 +30,8 @@ public class UserController {
 //TODO:
 //redo method to return dashboard of products
     @GetMapping("/account/home")
-    public ResponseEntity<String> homePage(@AuthenticationPrincipal CustomerDto customerDto) {
-        String information = customerDto.toString();
-        return ResponseEntity.ok().body(information);
+    public ResponseEntity<String> homePage() {
+        return productService.getDashboard();
     }
 
     @Transactional
