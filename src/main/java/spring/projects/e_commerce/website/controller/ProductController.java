@@ -1,5 +1,6 @@
 package spring.projects.e_commerce.website.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,9 +14,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import spring.projects.e_commerce.website.dto.CustomerDto;
 import spring.projects.e_commerce.website.dto.ProductDto;
-import spring.projects.e_commerce.website.dto.ProductUpdateDto;
 import spring.projects.e_commerce.website.enums.RoleEnum;
 import spring.projects.e_commerce.website.service.ProductService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/products")
@@ -24,15 +26,16 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/all")
-    public ResponseEntity<String> getAll() {
-        return productService.getAllProducts();
+    public ResponseEntity<List<ProductDto>> getAll() {
+        return ResponseEntity.ok().body(productService.getAllProducts());
     }
 
     @PostMapping("/add")
     public ResponseEntity<String> addProduct(@AuthenticationPrincipal CustomerDto customerDto,
-                                             @RequestBody ProductDto productDto) {
+                                             @Valid @RequestBody ProductDto productDto) {
         if (customerDto.getRoleEnum().equals(RoleEnum.SUPER_ADMIN)) {
-            return productService.addProduct(productDto);
+            productService.addProduct(productDto);
+            return ResponseEntity.ok().body("Product added");
         } else {
             return ResponseEntity.badRequest().body("Only admins can add products.");
         }
@@ -42,7 +45,8 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(@AuthenticationPrincipal CustomerDto customerDto
             , @PathVariable Long productId) {
         if (customerDto.getRoleEnum().equals(RoleEnum.SUPER_ADMIN)) {
-            return productService.deleteProduct(productId);
+            productService.deleteProduct(productId);
+            return ResponseEntity.ok().body("Product deleted");
         } else {
             return ResponseEntity.badRequest().body("Only admins can delete products.");
         }
@@ -50,9 +54,10 @@ public class ProductController {
 
     @PutMapping("/edit/{productId}")
     public ResponseEntity<String> editProduct(@AuthenticationPrincipal CustomerDto customerDto
-            , @PathVariable Long productId, @RequestBody ProductUpdateDto productUpdateDto) {
+            , @PathVariable Long productId, @Valid @RequestBody ProductDto productDto) {
         if (customerDto.getRoleEnum().equals(RoleEnum.SUPER_ADMIN)) {
-            return productService.updateProduct(productId, productUpdateDto);
+            productService.updateProduct(productId, productDto);
+            return ResponseEntity.ok().body("Product updated");
         } else {
             return ResponseEntity.badRequest().body("Only admins can update products.");
         }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import spring.projects.e_commerce.website.dto.CustomerDto;
 import spring.projects.e_commerce.website.dto.CustomerUpdatingDto;
@@ -27,11 +28,9 @@ public class UserController {
         return customerService.getCurrentCustomer(customerDto.getUsername());
     }
 
-//TODO:
-//redo method to return dashboard of products
-    @GetMapping("/account/home")
-    public ResponseEntity<String> homePage() {
-        return productService.getDashboard();
+    @GetMapping("/dashboard")
+    public ResponseEntity<String> homePage(@RequestParam(defaultValue = "1") int page) {
+        return ResponseEntity.ok().body(productService.getDashboard(page).toString());
     }
 
     @Transactional

@@ -2,15 +2,15 @@ package spring.projects.e_commerce.website.service;
 
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import spring.projects.e_commerce.website.dto.ProductDto;
-import spring.projects.e_commerce.website.dto.ProductUpdateDto;
 import spring.projects.e_commerce.website.entity.Product;
+import spring.projects.e_commerce.website.exception.ProductDoesntExist;
 import spring.projects.e_commerce.website.repository.ProductRepository;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -19,67 +19,48 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ModelMapper modelMapper;
 
-    public ResponseEntity<String> getAllProducts() {
+    public List<ProductDto> getAllProducts() {
         List<Product> products = productRepository.findAll();
-        List<ProductDto> productDtos = new ArrayList<>();
+        List<ProductDto> productDtoList = new ArrayList<>();
         for (Product product : products) {
-            productDtos.add(modelMapper.map(product, ProductDto.class));
+            productDtoList.add(modelMapper.map(product, ProductDto.class));
         }
-        if (products.isEmpty()) {
-            return ResponseEntity.badRequest().body("No products found");
-        } else {
-            return ResponseEntity.ok().body(productDtos.toString());
+        return productDtoList;
         }
-    }
 
-    public ResponseEntity<String> addProduct(ProductDto productDto) {
-        if (productDto.getName() == null || productDto.getDescription() == null
-                || productDto.getPrice() <= 0) {
-            return ResponseEntity.badRequest().body("Product full information is required");
-        } else {
+    public void addProduct(ProductDto productDto) {
+
             Product product = new Product();
             product.setName(productDto.getName());
             product.setDescription(productDto.getDescription());
             product.setPrice(productDto.getPrice());
             productRepository.save(product);
-            return ResponseEntity.ok().body("Product added successfully");
-        }
     }
 
-    public ResponseEntity<String> deleteProduct(Long productId) {
+    public void deleteProduct(Long productId) {
         if (productRepository.existsById(productId)) {
             productRepository.deleteById(productId);
-            return ResponseEntity.ok().body("Product deleted successfully");
         } else {
-            return ResponseEntity.badRequest().body("Product not found");
+            throw new ProductDoesntExist();
         }
     }
 
-    public ResponseEntity<String> updateProduct(Long productId, ProductUpdateDto productUpdateDto) {
+    public void updateProduct(Long productId, ProductDto productDto) {
         if (productRepository.existsById(productId)) {
             Product product = productRepository.getById(productId);
-            if (!productUpdateDto.getName().isEmpty()) {
-                product.setName(productUpdateDto.getName());
-            }
-            if (!productUpdateDto.getDescription().isEmpty()) {
-                product.setDescription(productUpdateDto.getDescription());
-            }
-            if (product.getPrice().equals(productUpdateDto.getPrice())) {
-                product.setPrice(productUpdateDto.getPrice());
-            }
+
+            product.setName(productDto.getName());
+            product.setDescription(productDto.getDescription());
+            product.setPrice(productDto.getPrice());
             productRepository.save(product);
-            return ResponseEntity.ok().body("Product updated successfully");
         } else {
-            return ResponseEntity.badRequest().body("Product not found");
+            throw new ProductDoesntExist();
         }
     }
 
-    public ResponseEntity<String> getDashboard() {
-        List<Product> products = productRepository.findAll();
-        if (products.size() <= 5) {
-            return ResponseEntity.ok().body(products.toString());
-        }
-        Collections.shuffle(products);
-        return ResponseEntity.ok().body(products.subList(0, 5).toString());
+    public List<Product> getDashboard(int page) {
+        PageRequest pageRequest = PageRequest.of(page, 5);
+        Page<Product> productPage = productRepository.findAll(pageRequest);
+        return productPage.getContent();
     }
 }

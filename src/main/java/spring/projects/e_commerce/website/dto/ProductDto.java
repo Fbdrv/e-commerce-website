@@ -1,5 +1,7 @@
 package spring.projects.e_commerce.website.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,7 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductDto {
 
+    @NotBlank(message = "field.must.be.not.blank")
     private String name;
-    private String description;
+
+    @NotNull(message = "field.must.be.not.blank")
     private Double price;
+
+    @NotBlank(message = "field.must.be.not.blank")
+    private String description;
 }
