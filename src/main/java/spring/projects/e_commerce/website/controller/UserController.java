@@ -9,28 +9,28 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import spring.projects.e_commerce.website.dto.CustomerDto;
 import spring.projects.e_commerce.website.dto.CustomerUpdatingDto;
 import spring.projects.e_commerce.website.service.CustomerService;
+import spring.projects.e_commerce.website.service.ProductService;
 
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
 public class UserController {
     private final CustomerService customerService;
+    private final ProductService productService;
 
     @GetMapping("/profile")
     public CustomerDto getCurrentUser(@AuthenticationPrincipal CustomerDto customerDto) {
         return customerService.getCurrentCustomer(customerDto.getUsername());
     }
 
-//TODO:
-//redo method to return dashboard of products
-    @GetMapping("/account/home")
-    public ResponseEntity<String> homePage(@AuthenticationPrincipal CustomerDto customerDto) {
-        String information = customerDto.toString();
-        return ResponseEntity.ok().body(information);
+    @GetMapping("/dashboard")
+    public ResponseEntity<String> homePage(@RequestParam(defaultValue = "1") int page) {
+        return ResponseEntity.ok().body(productService.getDashboard(page).toString());
     }
 
     @Transactional

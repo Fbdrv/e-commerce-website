@@ -28,4 +28,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleNullPointerException(NullPointerException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Something went wrong. Try again.");
     }
+
+    @ExceptionHandler(ProductDoesntExist.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleBadRequest() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Product does not exist.");
+    }
 }
